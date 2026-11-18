@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
+import { RutaProtegida } from './components/RutaProtegida';
 import { Catalogo } from './pages/Catalogo';
 import { Carrito } from './pages/Carrito';
 import { Login } from './pages/Login';
@@ -62,7 +63,7 @@ function App() {
         usuarioActual={usuarioActual}
         cerrarSesion={cerrarSesion}
       />
-      <div className="container mt-5">
+      <div className="container mt-4 mb-5">
         <Routes>
           <Route path="/" element={<Catalogo agregarAlCarrito={agregarAlCarrito} />} />
           <Route
@@ -81,6 +82,32 @@ function App() {
             path="/registro"
             element={<Registro usuarios={usuarios} registrarUsuario={registrarUsuario} />}
           />
+
+          <Route
+            path="/mis-pedidos"
+            element={
+              <RutaProtegida usuarioActual={usuarioActual} rolesPermitidos={['Cliente']}>
+                <h2>Mis Pedidos (En construcción - Paso 2)</h2>
+              </RutaProtegida>
+            }
+          />
+          <Route
+            path="/gestion-tienda"
+            element={
+              <RutaProtegida usuarioActual={usuarioActual} rolesPermitidos={['Vendedor', 'Administrador']}>
+                <h2>Gestión de Inventario y Pedidos (En construcción - Paso 3)</h2>
+              </RutaProtegida>
+            }
+          />
+          <Route
+            path="/admin-usuarios"
+            element={
+              <RutaProtegida usuarioActual={usuarioActual} rolesPermitidos={['Administrador']}>
+                <h2>Administración de Usuarios (En construcción - Paso 4)</h2>
+              </RutaProtegida>
+            }
+          />
+          <Route path="/ubicacion" element={<h2>Ubicación y Retiro (En construcción - Paso 5)</h2>} />
         </Routes>
       </div>
     </>
