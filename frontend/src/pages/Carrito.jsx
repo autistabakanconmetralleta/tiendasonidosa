@@ -1,6 +1,13 @@
-import { Link } from 'react-router-dom';
+import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
-export const Carrito = ({ carrito, agregar, restar, quitar }) => {
+export const Carrito = ({ carrito, agregar, restar, quitar, usuarioActual, confirmarPedido }) => {
+  const [tipoEntrega, setTipoEntrega] = useState('retiro');
+  const [direccion, setDireccion] = useState('');
+  const [telefono, setTelefono] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
   const total = carrito.reduce((suma, item) => suma + item.precio * item.cantidad, 0);
 
   if (carrito.length === 0) {
@@ -12,6 +19,30 @@ export const Carrito = ({ carrito, agregar, restar, quitar }) => {
       </>
     );
   }
+
+  const manejarCompra = (e) => {
+    e.preventDefault();
+    if (!usuarioActual) {
+      navigate('/login');
+      return;
+    }
+    if (telefono.trim().length < 8) {
+      setError('Ingresa un teléfono de contacto válido (mínimo 8 dígitos).');
+      return;
+    }
+    if (tipoEntrega === 'despacho' && direccion.trim().length < 5) {
+      setError('Ingresa una dirección completa para el despacho.');
+      return;
+    }
+
+    setError('');
+    confirmarPedido({
+      tipoEntrega,
+      direccion: tipoEntrega === 'despacho' ? direccion.trim() : 'Retiro en tienda (Viña del Mar)',
+      telefono: telefono.trim()
+    });
+    navigate('/mis-pedidos');
+  };
 
   return (
     <>
@@ -52,7 +83,65 @@ export const Carrito = ({ carrito, agregar, restar, quitar }) => {
           </tbody>
         </table>
       </div>
-      <h4 className="text-end">Total: ${total.toLocaleString('es-CL')}</h4>
+
+      <div className="row justify-content-end mt-4">
+        <div className="col-md-6">
+          <div className="card shadow-sm">
+            <div className="card-body">
+              <h4 className="mb-3">Total: ${total.toLocaleString('es-CL')}</h4>
+              {error && <div className="alert alert-danger">{error}</div>}
+
+              {!usuarioActual ? (
+                <div className="alert alert-warning mb-0">
+                  Debes <Link to="/login">iniciar sesión</Link> para confirmar tu pedido.
+                </div>
+              ) : (
+                <form onSubmit={manejarCompra}>
+                  <div className="mb-3">
+                    <label className="form-label fw-bold">Modalidad de entrega</label>
+                    <select
+                      className="form-select"
+                      value={tipoEntrega}
+                      onChange={(e) => setTipoEntrega(e.target.value)}
+                    >
+                      <option value="retiro">Retiro en Tienda (Viña del Mar - Gratis)</option>
+                      <option value="despacho">Despacho a Domicilio (Starken / Chilexpress)</option>
+                    </select>
+                  </div>
+
+                  {tipoEntrega === 'despacho' && (
+                    <div className="mb-3">
+                      <label className="form-label">Dirección de envío</label>
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Ej: Av. Libertad 1234, Viña del Mar"
+                        value={direccion}
+                        onChange={(e) => setDireccion(e.target.value)}
+                      />
+                    </div>
+                  )}
+
+                  <div className="mb-3">
+                    <label className="form-label">Teléfono de contacto</label>
+                    <input
+                      type="tel"
+                      className="form-control"
+                      placeholder="Ej: +56912345678"
+                      value={telefono}
+                      onChange={(e) => setTelefono(e.target.value)}
+                    />
+                  </div>
+
+                  <button type="submit" className="btn btn-success w-100 fw-bold">
+                    Confirmar Pedido
+                  </button>
+                </form>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
     </>
   );
 };

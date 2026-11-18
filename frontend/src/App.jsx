@@ -6,22 +6,29 @@ import { Catalogo } from './pages/Catalogo';
 import { Carrito } from './pages/Carrito';
 import { Login } from './pages/Login';
 import { Registro } from './pages/Registro';
+import { MisPedidos } from './pages/MisPedidos';
 import { usuariosIniciales } from './data/usuarios';
+import { productos as productosIniciales } from './data/productos';
 
 function App() {
+  const [productos, setProductos] = useState(productosIniciales);
   const [carrito, setCarrito] = useState([]);
   const [usuarios, setUsuarios] = useState(usuariosIniciales);
   const [usuarioActual, setUsuarioActual] = useState(null);
+  const [pedidos, setPedidos] = useState([]);
 
   const agregarAlCarrito = (producto) => {
+    const productoActual = productos.find(p => p.id === producto.id);
+    if (!productoActual || productoActual.stock <= 0) return;
+
     const existe = carrito.find(item => item.id === producto.id);
     if (existe) {
-      if (existe.cantidad >= producto.stock) return;
+      if (existe.cantidad >= productoActual.stock) return;
       setCarrito(carrito.map(item =>
         item.id === producto.id ? { ...item, cantidad: item.cantidad + 1 } : item
       ));
     } else {
-      setCarrito([...carrito, { ...producto, cantidad: 1 }]);
+      setCarrito([...carrito, { ...productoActual, cantidad: 1 }]);
     }
   };
 
@@ -35,6 +42,28 @@ function App() {
 
   const quitarDelCarrito = (id) => {
     setCarrito(carrito.filter(item => item.id !== id));
+  };
+
+  const confirmarPedido = (datosEntrega) => {
+    const total = carrito.reduce((suma, item) => suma + item.precio * item.cantidad, 0);
+    const nuevoPedido = {
+      id: 1000 + pedidos.length + 1,
+      clienteId: usuarioActual.id,
+      clienteNombre: usuarioActual.nombre,
+      fecha: new Date().toLocaleDateString('es-CL'),
+      items: carrito,
+      total,
+      estado: 'En preparación',
+      ...datosEntrega
+    };
+
+    setProductos(productos.map(prod => {
+      const comprado = carrito.find(item => item.id === prod.id);
+      return comprado ? { ...prod, stock: Math.max(0, prod.stock - comprado.cantidad) } : prod;
+    }));
+
+    setPedidos([nuevoPedido, ...pedidos]);
+    setCarrito([]);
   };
 
   const iniciarSesion = (email, password) => {
@@ -65,7 +94,10 @@ function App() {
       />
       <div className="container mt-4 mb-5">
         <Routes>
-          <Route path="/" element={<Catalogo agregarAlCarrito={agregarAlCarrito} />} />
+          <Route
+            path="/"
+            element={<Catalogo productos={productos} agregarAlCarrito={agregarAlCarrito} />}
+          />
           <Route
             path="/carrito"
             element={
@@ -74,6 +106,8 @@ function App() {
                 agregar={agregarAlCarrito}
                 restar={restarDelCarrito}
                 quitar={quitarDelCarrito}
+                usuarioActual={usuarioActual}
+                confirmarPedido={confirmarPedido}
               />
             }
           />
@@ -87,7 +121,7 @@ function App() {
             path="/mis-pedidos"
             element={
               <RutaProtegida usuarioActual={usuarioActual} rolesPermitidos={['Cliente']}>
-                <h2>Mis Pedidos (En construcción - Paso 2)</h2>
+                <MisPedidos pedidos={pedidos} usuarioActual={usuarioActual} />
               </RutaProtegida>
             }
           />

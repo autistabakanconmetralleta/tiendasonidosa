@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { ProductCard } from './ProductCard';
-import { productos as productosIniciales, categorias } from '../data/productos';
+import { categorias } from '../data/productos';
 
-export const ProductCatalog = ({ agregarAlCarrito }) => {
-  const [productos, setProductos] = useState(productosIniciales);
+export const ProductCatalog = ({ productos, agregarAlCarrito }) => {
   const [busqueda, setBusqueda] = useState('');
   const [categoria, setCategoria] = useState('Todas');
 
   const productosFiltrados = productos.filter(producto => {
-    const coincideNombre = producto.nombre.toLowerCase().includes(busqueda.toLowerCase());
+    const coincideNombre =
+      producto.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
+      producto.marca.toLowerCase().includes(busqueda.toLowerCase());
     const coincideCategoria = categoria === 'Todas' || producto.categoria === categoria;
     return coincideNombre && coincideCategoria;
   });
@@ -20,7 +21,7 @@ export const ProductCatalog = ({ agregarAlCarrito }) => {
           <input
             type="text"
             className="form-control"
-            placeholder="Buscar producto..."
+            placeholder="Buscar por nombre o marca..."
             value={busqueda}
             onChange={(e) => setBusqueda(e.target.value)}
           />
