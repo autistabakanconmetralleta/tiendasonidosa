@@ -7,6 +7,7 @@ import { Carrito } from './pages/Carrito';
 import { Login } from './pages/Login';
 import { Registro } from './pages/Registro';
 import { MisPedidos } from './pages/MisPedidos';
+import { GestionTienda } from './pages/GestionTienda';
 import { usuariosIniciales } from './data/usuarios';
 import { productos as productosIniciales } from './data/productos';
 
@@ -64,6 +65,25 @@ function App() {
 
     setPedidos([nuevoPedido, ...pedidos]);
     setCarrito([]);
+  };
+
+  // CRUD Productos
+  const agregarProducto = (nuevoProd) => {
+    const nuevoId = productos.length > 0 ? Math.max(...productos.map(p => p.id)) + 1 : 1;
+    setProductos([{ id: nuevoId, ...nuevoProd }, ...productos]);
+  };
+
+  const actualizarProducto = (prodActualizado) => {
+    setProductos(productos.map(p => (p.id === prodActualizado.id ? prodActualizado : p)));
+  };
+
+  const eliminarProducto = (id) => {
+    setProductos(productos.filter(p => p.id !== id));
+  };
+
+  // Gestión de estado de pedidos
+  const cambiarEstadoPedido = (pedidoId, nuevoEstado) => {
+    setPedidos(pedidos.map(p => (p.id === pedidoId ? { ...p, estado: nuevoEstado } : p)));
   };
 
   const iniciarSesion = (email, password) => {
@@ -129,7 +149,14 @@ function App() {
             path="/gestion-tienda"
             element={
               <RutaProtegida usuarioActual={usuarioActual} rolesPermitidos={['Vendedor', 'Administrador']}>
-                <h2>Gestión de Inventario y Pedidos (En construcción - Paso 3)</h2>
+                <GestionTienda
+                  productos={productos}
+                  agregarProducto={agregarProducto}
+                  actualizarProducto={actualizarProducto}
+                  eliminarProducto={eliminarProducto}
+                  pedidos={pedidos}
+                  cambiarEstadoPedido={cambiarEstadoPedido}
+                />
               </RutaProtegida>
             }
           />
