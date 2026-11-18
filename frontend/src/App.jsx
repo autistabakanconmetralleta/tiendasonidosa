@@ -11,6 +11,7 @@ import { GestionTienda } from './pages/GestionTienda';
 import { AdminUsuarios } from './pages/AdminUsuarios';
 import { usuariosIniciales } from './data/usuarios';
 import { productos as productosIniciales } from './data/productos';
+import { Ubicacion } from './pages/Ubicacion';
 
 function App() {
   const [productos, setProductos] = useState(productosIniciales);
@@ -189,7 +190,7 @@ function App() {
               </RutaProtegida>
             }
           />
-          <Route path="/ubicacion" element={<h2>Ubicación y Retiro (En construcción - Paso 5)</h2>} />
+          <Route path="/ubicacion" element={<Ubicacion />} />
         </Routes>
       </div>
     </>
