@@ -8,6 +8,7 @@ import { Login } from './pages/Login';
 import { Registro } from './pages/Registro';
 import { MisPedidos } from './pages/MisPedidos';
 import { GestionTienda } from './pages/GestionTienda';
+import { AdminUsuarios } from './pages/AdminUsuarios';
 import { usuariosIniciales } from './data/usuarios';
 import { productos as productosIniciales } from './data/productos';
 
@@ -84,6 +85,20 @@ function App() {
   // Gestión de estado de pedidos
   const cambiarEstadoPedido = (pedidoId, nuevoEstado) => {
     setPedidos(pedidos.map(p => (p.id === pedidoId ? { ...p, estado: nuevoEstado } : p)));
+  };
+
+  // CRUD Usuarios (Administrador)
+  const crearUsuarioAdmin = (datos) => {
+    const nuevoId = usuarios.length > 0 ? Math.max(...usuarios.map(u => u.id)) + 1 : 1;
+    setUsuarios([...usuarios, { id: nuevoId, ...datos, activo: true }]);
+  };
+
+  const actualizarUsuarioAdmin = (datosEditados) => {
+    setUsuarios(usuarios.map(u => (u.id === datosEditados.id ? { ...u, ...datosEditados } : u)));
+  };
+
+  const toggleActivoUsuario = (id) => {
+    setUsuarios(usuarios.map(u => (u.id === id ? { ...u, activo: !u.activo } : u)));
   };
 
   const iniciarSesion = (email, password) => {
@@ -164,7 +179,13 @@ function App() {
             path="/admin-usuarios"
             element={
               <RutaProtegida usuarioActual={usuarioActual} rolesPermitidos={['Administrador']}>
-                <h2>Administración de Usuarios (En construcción - Paso 4)</h2>
+                <AdminUsuarios
+                  usuarios={usuarios}
+                  usuarioActual={usuarioActual}
+                  crearUsuarioAdmin={crearUsuarioAdmin}
+                  actualizarUsuarioAdmin={actualizarUsuarioAdmin}
+                  toggleActivoUsuario={toggleActivoUsuario}
+                />
               </RutaProtegida>
             }
           />
