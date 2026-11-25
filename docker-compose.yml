@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16
+    container_name: sonidovivo-db
+    environment:
+      POSTGRES_DB: sonidovivo
+      POSTGRES_USER: sonido
+      POSTGRES_PASSWORD: sonido123
+    ports:
+      - "5435:5432"
+    volumes:
+      - sonidovivo-datos:/var/lib/postgresql/data
+
+volumes:
+  sonidovivo-datos:
