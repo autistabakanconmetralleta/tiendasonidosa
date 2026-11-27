@@ -1,13 +1,14 @@
 package cl.sonidovivo.backend.service;
 
-import cl.sonidovivo.backend.model.Producto;
-import cl.sonidovivo.backend.repository.ProductoRepository;
+import java.util.List;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.List;
+import cl.sonidovivo.backend.model.Producto;
+import cl.sonidovivo.backend.repository.ProductoRepository;
 
 @Service
 public class ProductoService {
@@ -62,5 +63,10 @@ public class ProductoService {
         } catch (DataIntegrityViolationException e) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "No se puede eliminar: el producto tiene pedidos asociados");
         }
+    }
+    public Producto actualizarStock(Long id, Integer stock) {
+        Producto existente = buscar(id);
+        existente.setStock(stock);
+        return productoRepository.save(existente);
     }
 }

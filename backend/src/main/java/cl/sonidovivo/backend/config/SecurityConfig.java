@@ -1,7 +1,7 @@
 package cl.sonidovivo.backend.config;
 
-import cl.sonidovivo.backend.security.JwtFilter;
-import cl.sonidovivo.backend.security.JwtService;
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -13,12 +13,11 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
+import cl.sonidovivo.backend.security.JwtService;
 
 @Configuration
 public class SecurityConfig {
@@ -42,8 +41,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/productos").hasRole("Administrador")
                         .requestMatchers(HttpMethod.PUT, "/api/productos/**").hasRole("Administrador")
                         .requestMatchers(HttpMethod.DELETE, "/api/productos/**").hasRole("Administrador")
-                        .anyRequest().authenticated())
-                .addFilterBefore(new JwtFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
+                        .requestMatchers(HttpMethod.PATCH, "/api/productos/*/stock").hasAnyRole("Vendedor", "Administrador")
+                        .requestMatchers(HttpMethod.POST, "/api/pedidos").hasRole("Cliente")
+                        .requestMatchers(HttpMethod.GET, "/api/pedidos/mios").authenticated()
+                        .requestMatchers("/api/pedidos/**").hasAnyRole("Vendedor", "Administrador")
+                        .requestMatchers("/api/usuarios/**").hasRole("Administrador")
+                        .anyRequest().authenticated());
 
         return http.build();
     }
