@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-export const Registro = ({ usuarios, registrarUsuario }) => {
+export const Registro = ({ registrarUsuario }) => {
   const [datos, setDatos] = useState({
     nombre: '',
     email: '',
@@ -9,6 +9,7 @@ export const Registro = ({ usuarios, registrarUsuario }) => {
     confirmar: ''
   });
   const [errores, setErrores] = useState({});
+  const [errorServidor, setErrorServidor] = useState('');
   const navigate = useNavigate();
 
   const cambiar = (e) => {
@@ -22,8 +23,6 @@ export const Registro = ({ usuarios, registrarUsuario }) => {
     }
     if (!/^\S+@\S+\.\S+$/.test(datos.email)) {
       nuevosErrores.email = 'Ingresa un correo válido.';
-    } else if (usuarios.some(u => u.email === datos.email.trim())) {
-      nuevosErrores.email = 'Ese correo ya está registrado.';
     }
     if (datos.password.length < 6) {
       nuevosErrores.password = 'La contraseña debe tener al menos 6 caracteres.';
@@ -34,17 +33,22 @@ export const Registro = ({ usuarios, registrarUsuario }) => {
     return nuevosErrores;
   };
 
-  const manejarEnvio = (e) => {
+  const manejarEnvio = async (e) => {
     e.preventDefault();
     const nuevosErrores = validar();
     setErrores(nuevosErrores);
+    setErrorServidor('');
     if (Object.keys(nuevosErrores).length === 0) {
-      registrarUsuario({
+      const mensajeError = await registrarUsuario({
         nombre: datos.nombre.trim(),
         email: datos.email.trim(),
         password: datos.password
       });
-      navigate('/');
+      if (mensajeError) {
+        setErrorServidor(mensajeError);
+      } else {
+        navigate('/');
+      }
     }
   };
 
@@ -52,6 +56,7 @@ export const Registro = ({ usuarios, registrarUsuario }) => {
     <div className="row justify-content-center">
       <div className="col-md-5">
         <h2 className="mb-4">Crear cuenta</h2>
+        {errorServidor && <div className="alert alert-danger">{errorServidor}</div>}
         <form onSubmit={manejarEnvio} noValidate>
           <div className="mb-3">
             <label className="form-label">Nombre</label>

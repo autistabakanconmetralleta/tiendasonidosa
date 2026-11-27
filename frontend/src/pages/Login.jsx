@@ -1,23 +1,23 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-export const Login = ({ iniciarSesion }) => {
+export const Login = ({ iniciarSesion, mensaje }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const manejarEnvio = (e) => {
+  const manejarEnvio = async (e) => {
     e.preventDefault();
     if (email.trim() === '' || password === '') {
       setError('Completa el correo y la contraseña.');
       return;
     }
-    const entro = iniciarSesion(email.trim(), password);
-    if (entro) {
-      navigate('/');
+    const mensajeError = await iniciarSesion(email.trim(), password);
+    if (mensajeError) {
+      setError(mensajeError);
     } else {
-      setError('Correo o contraseña incorrectos.');
+      navigate('/');
     }
   };
 
@@ -26,6 +26,7 @@ export const Login = ({ iniciarSesion }) => {
       <div className="col-md-5">
         <h2 className="mb-4">Iniciar sesión</h2>
         {error && <div className="alert alert-danger">{error}</div>}
+        {mensaje && !error && <div className="alert alert-warning">{mensaje}</div>}
         <form onSubmit={manejarEnvio}>
           <div className="mb-3">
             <label className="form-label">Correo</label>

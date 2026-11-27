@@ -12,6 +12,7 @@ public record PedidoResponse(
         String estado,
         String tipoEntrega,
         String direccion,
+        String telefono,
         Integer total,
         List<DetallePedidoResponse> detalles
 ) {

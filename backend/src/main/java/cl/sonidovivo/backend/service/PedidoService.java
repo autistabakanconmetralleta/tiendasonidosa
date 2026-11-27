@@ -62,6 +62,7 @@ public class PedidoService {
         pedido.setEstado("En preparación");
         pedido.setTipoEntrega(tipo);
         pedido.setDireccion(direccion);
+        pedido.setTelefono(request.telefono().trim());
 
         int total = 0;
         for (ItemPedidoRequest item : request.items()) {
@@ -139,6 +140,7 @@ public class PedidoService {
                 pedido.getEstado(),
                 pedido.getTipoEntrega(),
                 pedido.getDireccion(),
+                pedido.getTelefono(),
                 pedido.getTotal(),
                 detalles);
     }

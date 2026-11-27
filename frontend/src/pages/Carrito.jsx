@@ -20,10 +20,14 @@ export const Carrito = ({ carrito, agregar, restar, quitar, usuarioActual, confi
     );
   }
 
-  const manejarCompra = (e) => {
+  const manejarCompra = async (e) => {
     e.preventDefault();
     if (!usuarioActual) {
       navigate('/login');
+      return;
+    }
+    if (usuarioActual.rol !== 'Cliente') {
+      setError('Solo los clientes pueden realizar pedidos.');
       return;
     }
     if (telefono.trim().length < 8) {
@@ -36,12 +40,17 @@ export const Carrito = ({ carrito, agregar, restar, quitar, usuarioActual, confi
     }
 
     setError('');
-    confirmarPedido({
+    const mensajeError = await confirmarPedido({
       tipoEntrega,
       direccion: tipoEntrega === 'despacho' ? direccion.trim() : 'Retiro en tienda (Viña del Mar)',
       telefono: telefono.trim()
     });
-    navigate('/mis-pedidos');
+
+    if (mensajeError) {
+      setError(mensajeError);
+    } else {
+      navigate('/mis-pedidos');
+    }
   };
 
   return (

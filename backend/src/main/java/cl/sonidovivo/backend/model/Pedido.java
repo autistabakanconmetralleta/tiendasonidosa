@@ -1,9 +1,19 @@
 package cl.sonidovivo.backend.model;
 
-import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "pedidos")
@@ -29,6 +39,9 @@ public class Pedido {
     @Column(nullable = false)
     private String direccion;
 
+    @Column(length = 30)
+    private String telefono;
+
     @Column(nullable = false)
     private Integer total;
 
@@ -52,6 +65,9 @@ public class Pedido {
 
     public String getDireccion() { return direccion; }
     public void setDireccion(String direccion) { this.direccion = direccion; }
+
+    public String getTelefono() { return telefono; }
+    public void setTelefono(String telefono) { this.telefono = telefono; }
 
     public Integer getTotal() { return total; }
     public void setTotal(Integer total) { this.total = total; }
