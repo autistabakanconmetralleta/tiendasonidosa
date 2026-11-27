@@ -2,6 +2,7 @@ package cl.sonidovivo.backend.controller;
 
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -45,12 +46,14 @@ public class ProductoController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Crear un producto")
     public Producto crear(@Valid @RequestBody Producto producto) {
         return productoService.crear(producto);
     }
 
     @PutMapping("/{id}")
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Actualizar un producto")
     public Producto actualizar(@PathVariable Long id, @Valid @RequestBody Producto producto) {
         return productoService.actualizar(id, producto);
@@ -58,6 +61,7 @@ public class ProductoController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @SecurityRequirement(name = "bearerAuth")
     @Operation(summary = "Eliminar un producto")
     public void eliminar(@PathVariable Long id) {
         productoService.eliminar(id);
