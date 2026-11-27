@@ -16,6 +16,8 @@ import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import cl.sonidovivo.backend.security.JwtFilter;
 
 import cl.sonidovivo.backend.security.JwtService;
 
@@ -46,7 +48,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/pedidos/mios").authenticated()
                         .requestMatchers("/api/pedidos/**").hasAnyRole("Vendedor", "Administrador")
                         .requestMatchers("/api/usuarios/**").hasRole("Administrador")
-                        .anyRequest().authenticated());
+                        .anyRequest().authenticated())
+                .addFilterBefore(new JwtFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
