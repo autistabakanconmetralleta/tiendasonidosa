@@ -1,5 +1,12 @@
 import { useState } from 'react';
 
+const formularioVacio = () => ({
+  nombre: '',
+  email: '',
+  password: '',
+  rol: 'Vendedor'
+});
+
 export const AdminUsuarios = ({
   usuarios,
   usuarioActual,
@@ -9,22 +16,12 @@ export const AdminUsuarios = ({
 }) => {
   const [editandoId, setEditandoId] = useState(null);
   const [error, setError] = useState('');
-  const [formulario, setFormulario] = useState({
-    nombre: '',
-    email: '',
-    password: '',
-    rol: 'Vendedor'
-  });
+  const [formulario, setFormulario] = useState(formularioVacio());
 
   const limpiarFormulario = () => {
     setEditandoId(null);
     setError('');
-    setFormulario({
-      nombre: '',
-      email: '',
-      password: '',
-      rol: 'Vendedor'
-    });
+    setFormulario(formularioVacio());
   };
 
   const cargarParaEditar = (u) => {
@@ -33,7 +30,7 @@ export const AdminUsuarios = ({
     setFormulario({
       nombre: u.nombre,
       email: u.email,
-      password: u.password,
+      password: '',
       rol: u.rol
     });
   };
@@ -42,7 +39,7 @@ export const AdminUsuarios = ({
     setFormulario({ ...formulario, [e.target.name]: e.target.value });
   };
 
-  const manejarEnvio = (e) => {
+  const manejarEnvio = async (e) => {
     e.preventDefault();
     if (formulario.nombre.trim().length < 3) {
       setError('El nombre debe tener al menos 3 caracteres.');
@@ -53,32 +50,35 @@ export const AdminUsuarios = ({
       return;
     }
     const correoDuplicado = usuarios.some(
-      u => u.email === formulario.email.trim() && u.id !== editandoId
+      u => u.email === formulario.email.trim().toLowerCase() && u.id !== editandoId
     );
     if (correoDuplicado) {
       setError('Ese correo ya está registrado por otro usuario.');
       return;
     }
-    if (formulario.password.length < 6) {
+    if (!editandoId && formulario.password.length < 6) {
       setError('La contraseña debe tener al menos 6 caracteres.');
       return;
     }
+    if (editandoId && formulario.password !== '' && formulario.password.length < 6) {
+      setError('La contraseña nueva debe tener al menos 6 caracteres.');
+      return;
+    }
 
-    if (editandoId) {
-      actualizarUsuarioAdmin({
-        id: editandoId,
-        nombre: formulario.nombre.trim(),
-        email: formulario.email.trim(),
-        password: formulario.password,
-        rol: formulario.rol
-      });
-    } else {
-      crearUsuarioAdmin({
-        nombre: formulario.nombre.trim(),
-        email: formulario.email.trim(),
-        password: formulario.password,
-        rol: formulario.rol
-      });
+    const datos = {
+      nombre: formulario.nombre.trim(),
+      email: formulario.email.trim(),
+      password: formulario.password,
+      rol: formulario.rol
+    };
+
+    const mensajeError = editandoId
+      ? await actualizarUsuarioAdmin({ id: editandoId, ...datos })
+      : await crearUsuarioAdmin(datos);
+
+    if (mensajeError) {
+      setError(mensajeError);
+      return;
     }
     limpiarFormulario();
   };
@@ -88,7 +88,6 @@ export const AdminUsuarios = ({
       <h2 className="mb-4">Administración de Usuarios y Roles</h2>
 
       <div className="row">
-        {/* Formulario Crear / Editar Usuario */}
         <div className="col-lg-4 mb-4">
           <div className="card shadow-sm">
             <div className="card-header bg-dark text-white">
@@ -123,6 +122,7 @@ export const AdminUsuarios = ({
                     type="password"
                     name="password"
                     className="form-control form-control-sm"
+                    placeholder={editandoId ? 'Vacío para no cambiarla' : ''}
                     value={formulario.password}
                     onChange={manejarCambio}
                   />
@@ -160,7 +160,6 @@ export const AdminUsuarios = ({
           </div>
         </div>
 
-        {/* Tabla de Usuarios */}
         <div className="col-lg-8">
           <div className="table-responsive">
             <table className="table table-striped table-hover align-middle">
